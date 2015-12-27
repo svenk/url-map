@@ -64,6 +64,12 @@ class UrlMap implements HttpKernelInterface, TerminableInterface
                 $attributes[static::ATTR_PREFIX] = $request->getBaseUrl().$path;
 
                 $newRequest = $request->duplicate(null, null, $attributes, null, null, $server);
+                
+                // Dirty fix for POTT #1265 or https://github.com/bolt/bolt/issues/2214
+                // which is the issue that \Bolt\Conf:getWhichEnd uses
+                // \Symfony\Component\HttpFoundation\Request:createFromGlobals() instead of relying on
+                // the Request attributes.
+                $newRequest->overrideGlobals();
 
                 return $app->handle($newRequest, $type, $catch);
             }
